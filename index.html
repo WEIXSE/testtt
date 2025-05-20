@@ -16,18 +16,25 @@
         let energy = 0;
         let energyPerClick = 1;
 
+        // Инициализация Telegram WebApp
         Telegram.WebApp.expand();
+        Telegram.WebApp.ready();
 
+        // Функция отправки данных в бота
+        function sendToBot() {
+            const data = {
+                energy: energy,
+                energyPerClick: energyPerClick
+            };
+            Telegram.WebApp.sendData(JSON.stringify(data));
+            console.log("📨 Отправлено в бота:", data);
+        }
+
+        // Обработчик клика
         document.getElementById('clicker').addEventListener('click', () => {
             energy += energyPerClick;
             document.getElementById('energy').textContent = energy;
-            
-            Telegram.WebApp.sendData(JSON.stringify({
-                energy: energy,
-                energyPerClick: energyPerClick
-            }));
-            
-            console.log("Отправлено:", { energy, energyPerClick });
+            sendToBot(); // Отправляем данные после каждого клика!
         });
     </script>
 </body>
