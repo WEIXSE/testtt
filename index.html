@@ -83,8 +83,11 @@ function saveGame() {
   };
 
   if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.sendData(JSON.stringify(gameData));
-    console.log('Данные отправлены:', gameData);
+    Telegram.WebApp.sendData(JSON.stringify({
+  energy: Number(yourEnergyVariable),
+  energyPerClick: Number(yourClickPower),
+  energyPerSecond: Number(yourAutoClickPower)
+}));
   }
 }
 
