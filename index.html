@@ -1,110 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Energy Clicker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: #6c5ce7;
-            color: white;
-            padding: 20px;
-        }
-        #clicker {
-            width: 200px;
-            height: 200px;
-            background: #fd79a8;
-            border-radius: 50%;
-            margin: 30px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            user-select: none;
-        }
-        #energy {
-            font-size: 28px;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
-    <h1>Energy Clicker</h1>
-    <div>Ваша энергия: <span id="energy">0</span>⚡</div>
-    
-    <div id="clicker">КЛИКАЙ!</div>
-    
-    <div>
-        <button onclick="buyUpgrade()">Улучшение (+1⚡/клик) - 10⚡</button>
-    </div>
+    <h1>Кликер</h1>
+    <div>Энергия: <span id="energy">0</span>⚡</div>
+    <button id="clicker">КЛИК</button>
 
     <script>
-        // Инициализация игры
         let energy = 0;
         let energyPerClick = 1;
-        let energyPerSecond = 0;
         
-        // Инициализация Telegram WebApp
         Telegram.WebApp.expand();
-        Telegram.WebApp.ready();
         
-        // Обновление интерфейса
-        function updateEnergy() {
-            document.getElementById('energy').textContent = energy;
-            saveGame(); // Автосохранение при изменении
-        }
-        
-        // Обработка кликов
         document.getElementById('clicker').addEventListener('click', () => {
             energy += energyPerClick;
-            updateEnergy();
+            document.getElementById('energy').textContent = energy;
             
-            // Анимация клика
-            const clicker = document.getElementById('clicker');
-            clicker.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                clicker.style.transform = 'scale(1)';
-            }, 100);
-        });
-        
-        // Покупка улучшений
-        function buyUpgrade() {
-            if (energy >= 10) {
-                energy -= 10;
-                energyPerClick += 1;
-                updateEnergy();
-                alert(`Улучшение куплено! Теперь вы получаете ${energyPerClick}⚡ за клик`);
-            } else {
-                alert('Недостаточно энергии!');
-            }
-        }
-        
-        // Функция сохранения в БД
-        function saveGame() {
-            const gameData = {
+            // Отправляем данные в бота
+            Telegram.WebApp.sendData(JSON.stringify({
                 energy: energy,
-                energyPerClick: energyPerClick,
-                energyPerSecond: energyPerSecond
-            };
-            
-            console.log("Отправка данных:", gameData); // Логируем
-            
-            if (window.Telegram?.WebApp?.sendData) {
-                try {
-                    Telegram.WebApp.sendData(JSON.stringify(gameData));
-                } catch (err) {
-                    console.error("Ошибка отправки:", err);
-                }
-            }
-        }
-        
-        // Автосохранение каждые 15 секунд
-        setInterval(saveGame, 15000);
-        
-        // Первоначальное обновление
-        updateEnergy();
+                energyPerClick: energyPerClick
+            }));
+        });
     </script>
 </body>
 </html>
