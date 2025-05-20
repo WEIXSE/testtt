@@ -74,6 +74,25 @@
         // Инициализация Telegram WebApp
         Telegram.WebApp.expand();
         Telegram.WebApp.ready();
+        // В самом конце script-тега:
+function saveGame() {
+  const gameData = {
+    energy: window.currentEnergy || 0,
+    energyPerClick: window.energyPerClick || 1,
+    energyPerSecond: window.energyPerSecond || 0
+  };
+
+  if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.sendData(JSON.stringify(gameData));
+    console.log('Данные отправлены:', gameData);
+  }
+}
+
+// Автосохранение каждые 30 сек
+setInterval(saveGame, 30000);
+
+// Ручное сохранение при необходимости
+window.saveProgress = saveGame;
     </script>
 </body>
 </html>
