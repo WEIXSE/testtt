@@ -41,15 +41,25 @@
     </div>
 
     <script>
-        let energy = 0;
-        let energyPerClick = 1;
+        // Глобальные переменные игры
+        let energy = localStorage.getItem('energy') || 0;
+        let energyPerClick = localStorage.getItem('energyPerClick') || 1;
+        let energyPerSecond = localStorage.getItem('energyPerSecond') || 0;
         
+        // Инициализация Telegram WebApp
+        Telegram.WebApp.expand();
+        Telegram.WebApp.ready();
+        
+        // Обновление отображения энергии
         function updateEnergy() {
             document.getElementById('energy').textContent = energy;
+            localStorage.setItem('energy', energy);
+            saveGame(); // Автосохранение при изменении
         }
         
+        // Обработчик кликов
         document.getElementById('clicker').addEventListener('click', () => {
-            energy += energyPerClick;
+            energy = Number(energy) + Number(energyPerClick);
             updateEnergy();
             
             // Анимация клика
@@ -60,10 +70,12 @@
             }, 100);
         });
         
+        // Покупка улучшений
         function buyUpgrade() {
             if (energy >= 10) {
                 energy -= 10;
-                energyPerClick += 1;
+                energyPerClick = Number(energyPerClick) + 1;
+                localStorage.setItem('energyPerClick', energyPerClick);
                 updateEnergy();
                 alert(`Улучшение куплено! Теперь вы получаете ${energyPerClick}⚡ за клик`);
             } else {
@@ -71,31 +83,32 @@
             }
         }
         
-        // Инициализация Telegram WebApp
-        Telegram.WebApp.expand();
-        Telegram.WebApp.ready();
-        // В самом конце script-тега:
-function saveGame() {
-  const gameData = {
-    energy: window.currentEnergy || 0,
-    energyPerClick: window.energyPerClick || 1,
-    energyPerSecond: window.energyPerSecond || 0
-  };
-
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.sendData(JSON.stringify({
-  energy: Number(yourEnergyVariable),
-  energyPerClick: Number(yourClickPower),
-  energyPerSecond: Number(yourAutoClickPower)
-}));
-  }
-}
-
-// Автосохранение каждые 30 сек
-setInterval(saveGame, 30000);
-
-// Ручное сохранение при необходимости
-window.saveProgress = saveGame;
+        // Функция сохранения прогресса
+        function saveGame() {
+            const gameData = {
+                energy: Number(energy),
+                energyPerClick: Number(energyPerClick),
+                energyPerSecond: Number(energyPerSecond)
+            };
+            
+            if (window.Telegram?.WebApp?.sendData) {
+                try {
+                    Telegram.WebApp.sendData(JSON.stringify(gameData));
+                    console.log('Данные отправлены:', gameData);
+                } catch (err) {
+                    console.error('Ошибка отправки:', err);
+                }
+            }
+        }
+        
+        // Автосохранение каждые 30 секунд
+        setInterval(saveGame, 30000);
+        
+        // Сохранение при закрытии
+        window.addEventListener('beforeunload', saveGame);
+        
+        // Первоначальная загрузка
+        updateEnergy();
     </script>
 </body>
 </html>
