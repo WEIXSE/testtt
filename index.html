@@ -8,30 +8,26 @@
     </style>
 </head>
 <body>
-    <h1>Energy Clicker</h1>
+    <h1>Кликер</h1>
     <p>Энергия: <span id="energy">0</span>⚡</p>
-    <button id="clicker">КЛИКНИ МЕНЯ</button>
+    <button id="clicker">КЛИК</button>
 
     <script>
         let energy = 0;
         let energyPerClick = 1;
 
-        // Инициализация Telegram WebApp
         Telegram.WebApp.expand();
-        Telegram.WebApp.ready();
 
-        // Обработчик клика
         document.getElementById('clicker').addEventListener('click', () => {
             energy += energyPerClick;
             document.getElementById('energy').textContent = energy;
             
-            // Отправляем данные в бота
             Telegram.WebApp.sendData(JSON.stringify({
                 energy: energy,
                 energyPerClick: energyPerClick
             }));
             
-            console.log("Данные отправлены:", { energy, energyPerClick });
+            console.log("Отправлено:", { energy, energyPerClick });
         });
     </script>
 </body>
