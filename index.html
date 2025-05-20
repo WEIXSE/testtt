@@ -4,19 +4,44 @@
     <title>Energy Clicker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: Arial, text-align: center; background: #6c5ce7; color: white; padding: 20px; }
-        #clicker { width: 200px; height: 200px; background: #fd79a8; border-radius: 50%; margin: 30px auto; 
-                 display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #6c5ce7;
+            color: white;
+            padding: 20px;
+        }
+        #clicker {
+            width: 200px;
+            height: 200px;
+            background: #fd79a8;
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            user-select: none;
+        }
+        #energy {
+            font-size: 28px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <h1>Energy Clicker</h1>
-    <div>Энергия: <span id="energy">0</span>⚡</div>
+    <div>Ваша энергия: <span id="energy">0</span>⚡</div>
+    
     <div id="clicker">КЛИКАЙ!</div>
-    <button onclick="buyUpgrade()">Улучшение (+1⚡/клик) - 10⚡</button>
+    
+    <div>
+        <button onclick="buyUpgrade()">Улучшение (+1⚡/клик) - 10⚡</button>
+    </div>
 
     <script>
-        // Игровые переменные
+        // Инициализация игры
         let energy = 0;
         let energyPerClick = 1;
         let energyPerSecond = 0;
@@ -28,13 +53,20 @@
         // Обновление интерфейса
         function updateEnergy() {
             document.getElementById('energy').textContent = energy;
-            saveToDB(); // Сохраняем при каждом изменении
+            saveGame(); // Автосохранение при изменении
         }
         
         // Обработка кликов
         document.getElementById('clicker').addEventListener('click', () => {
             energy += energyPerClick;
             updateEnergy();
+            
+            // Анимация клика
+            const clicker = document.getElementById('clicker');
+            clicker.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                clicker.style.transform = 'scale(1)';
+            }, 100);
         });
         
         // Покупка улучшений
@@ -44,25 +76,35 @@
                 energyPerClick += 1;
                 updateEnergy();
                 alert(`Улучшение куплено! Теперь вы получаете ${energyPerClick}⚡ за клик`);
+            } else {
+                alert('Недостаточно энергии!');
             }
         }
         
-        // Сохранение в БД через бота
-        function saveToDB() {
+        // Функция сохранения в БД
+        function saveGame() {
             const gameData = {
                 energy: energy,
                 energyPerClick: energyPerClick,
                 energyPerSecond: energyPerSecond
             };
             
+            console.log("Отправка данных:", gameData); // Логируем
+            
             if (window.Telegram?.WebApp?.sendData) {
-                Telegram.WebApp.sendData(JSON.stringify(gameData));
-                console.log("Данные отправлены в бота:", gameData);
+                try {
+                    Telegram.WebApp.sendData(JSON.stringify(gameData));
+                } catch (err) {
+                    console.error("Ошибка отправки:", err);
+                }
             }
         }
         
-        // Автосохранение каждые 20 сек
-        setInterval(saveToDB, 20000);
+        // Автосохранение каждые 15 секунд
+        setInterval(saveGame, 15000);
+        
+        // Первоначальное обновление
+        updateEnergy();
     </script>
 </body>
 </html>
